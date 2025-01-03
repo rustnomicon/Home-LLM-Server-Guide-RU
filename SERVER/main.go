@@ -3,12 +3,26 @@ package main
 import (
 	"io"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
+func port() string {
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = "8080"
+	}
+	return ":" + port
+}
+
 func main() {
+
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetOutput(os.Stdout)
+
 	router := gin.Default()
 
 	router.Any("/proxy/*path", func(c *gin.Context) {
@@ -64,6 +78,7 @@ func main() {
 		c.Writer.Write(body)
 	})
 
+	log.Info("Starting server-proxy on port " + port())
 	// Запуск сервера
 	router.Run(":8080") // Слушаем порт 8080
 }
